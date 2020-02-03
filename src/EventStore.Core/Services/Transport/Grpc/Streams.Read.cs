@@ -6,6 +6,7 @@ using EventStore.Core.Data;
 using EventStore.Core.Util;
 using EventStore.Client;
 using EventStore.Client.Streams;
+using EventStore.Core.Settings;
 using Google.Protobuf;
 using Grpc.Core;
 using CountOptionOneofCase = EventStore.Client.Streams.ReadReq.Types.Options.CountOptionOneofCase;
@@ -26,6 +27,11 @@ namespace EventStore.Core.Services.Transport.Grpc {
 			var filterOptionsCase = options.FilterOptionCase;
 			var uuidOptionsCase = options.UuidOption.ContentCase;
 
+			if (context.Deadline > _timeProvider.UtcNow.AddMilliseconds(ESConsts.ReadRequestTimeout)) {
+				throw new ArgumentOutOfRangeException(
+					$"The provided deadline would exceed the allowed {ESConsts.ReadRequestTimeout} ms for reads.");
+			}
+
 			var user = await GetUser(_authenticationProvider, context.RequestHeaders).ConfigureAwait(false);
 
 			await using var enumerator =
@@ -41,6 +47,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 						request.Options.Count,
 						request.Options.ResolveLinks,
 						user,
+						context.Deadline,
 						context.CancellationToken),
 					(StreamOptionOneofCase.Stream,
 					CountOptionOneofCase.Count,
@@ -52,6 +59,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 						request.Options.Count,
 						request.Options.ResolveLinks,
 						user,
+						context.Deadline,
 						context.CancellationToken),
 					(StreamOptionOneofCase.All,
 					CountOptionOneofCase.Count,
@@ -62,6 +70,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 						request.Options.Count,
 						request.Options.ResolveLinks,
 						user,
+						context.Deadline,
 						context.CancellationToken),
 					(StreamOptionOneofCase.All,
 					CountOptionOneofCase.Count,
@@ -78,6 +87,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 							_ => throw new InvalidOperationException()
 						},
 						user,
+						context.Deadline,
 						context.CancellationToken),
 					(StreamOptionOneofCase.All,
 					CountOptionOneofCase.Count,
@@ -88,6 +98,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 						request.Options.Count,
 						request.Options.ResolveLinks,
 						user,
+						context.Deadline,
 						context.CancellationToken),
 					(StreamOptionOneofCase.All,
 					CountOptionOneofCase.Count,
@@ -104,6 +115,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 							_ => throw new InvalidOperationException()
 						},
 						user,
+						context.Deadline,
 						context.CancellationToken),
 					(StreamOptionOneofCase.Stream,
 					CountOptionOneofCase.Subscription,

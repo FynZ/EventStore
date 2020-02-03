@@ -21,6 +21,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 			private readonly IPrincipal _user;
 			private readonly CancellationTokenSource _disposedTokenSource;
 			private readonly ConcurrentQueue<ResolvedEvent> _buffer;
+			private readonly DateTime _expiresAt;
 			private readonly CancellationTokenRegistration _tokenRegistration;
 
 			private Position _nextPosition;
@@ -38,6 +39,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 				Util.IEventFilter eventFilter,
 				int? maxSearchWindow,
 				IPrincipal user,
+				DateTime? expiresAt,
 				CancellationToken cancellationToken) {
 				if (bus == null) {
 					throw new ArgumentNullException(nameof(bus));
@@ -97,7 +99,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 				_bus.Publish(new ClientMessage.FilteredReadAllEventsBackward(
 					correlationId, correlationId, new CallbackEnvelope(OnMessage),
 					commitPosition, preparePosition, Math.Min(32, (int)_maxCount),
-					_resolveLinks, false, _maxSearchWindow, default, _eventFilter, _user));
+					_resolveLinks, false, _maxSearchWindow, default, _eventFilter, _user, expiresAt: _expiresAt));
 
 				if (!await readNextSource.Task.ConfigureAwait(false)) {
 					return false;

@@ -9,13 +9,16 @@ using Google.Protobuf;
 namespace EventStore.Client {
 	public partial class EventStoreClient {
 		public async Task<StreamMetadataResult> GetStreamMetadataAsync(string streamName,
-			UserCredentials userCredentials = default, CancellationToken cancellationToken = default) {
+			UserCredentials userCredentials = default,
+			TimeSpan? timeoutAfter = default,
+			CancellationToken cancellationToken = default) {
 			ResolvedEvent metadata = default;
 
 			try {
 				metadata = await ReadStreamAsync(Direction.Backwards, SystemStreams.MetastreamOf(streamName), StreamRevision.End, 1,
 					false,
 					userCredentials: userCredentials,
+					timeoutAfter: timeoutAfter,
 					cancellationToken: cancellationToken).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
 			} catch (StreamNotFoundException) {
 				return StreamMetadataResult.None(streamName);

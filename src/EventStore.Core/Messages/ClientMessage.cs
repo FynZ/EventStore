@@ -89,9 +89,10 @@ namespace EventStore.Core.Messages {
 
 			public readonly IPrincipal User;
 
-			public DateTime Expires = DateTime.UtcNow.AddMilliseconds(ESConsts.ReadRequestTimeout);
+			public DateTime Expires;
 
-			protected ReadRequestMessage(Guid internalCorrId, Guid correlationId, IEnvelope envelope, IPrincipal user) {
+			protected ReadRequestMessage(Guid internalCorrId, Guid correlationId, IEnvelope envelope, IPrincipal user,
+				DateTime? expiresAt = default) {
 				Ensure.NotEmptyGuid(internalCorrId, "internalCorrId");
 				Ensure.NotEmptyGuid(correlationId, "correlationId");
 				Ensure.NotNull(envelope, "envelope");
@@ -101,6 +102,7 @@ namespace EventStore.Core.Messages {
 				Envelope = envelope;
 
 				User = user;
+				Expires = expiresAt ?? DateTime.UtcNow.AddMilliseconds(ESConsts.ReadRequestTimeout);
 			}
 		}
 
@@ -570,7 +572,7 @@ namespace EventStore.Core.Messages {
 			public ReadStreamEventsForward(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				string eventStreamId, long fromEventNumber, int maxCount, bool resolveLinkTos,
 				bool requireMaster, long? validationStreamVersion, IPrincipal user,
-				TimeSpan? longPollTimeout = null)
+				TimeSpan? longPollTimeout = null, DateTime? expiresAt = default)
 				: base(internalCorrId, correlationId, envelope, user) {
 				Ensure.NotNullOrEmpty(eventStreamId, "eventStreamId");
 				if (fromEventNumber < -1) throw new ArgumentOutOfRangeException("fromEventNumber");
@@ -661,7 +663,7 @@ namespace EventStore.Core.Messages {
 
 			public ReadStreamEventsBackward(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				string eventStreamId, long fromEventNumber, int maxCount, bool resolveLinkTos,
-				bool requireMaster, long? validationStreamVersion, IPrincipal user)
+				bool requireMaster, long? validationStreamVersion, IPrincipal user, DateTime? expiresAt = default)
 				: base(internalCorrId, correlationId, envelope, user) {
 				Ensure.NotNullOrEmpty(eventStreamId, "eventStreamId");
 				if (fromEventNumber < -1) throw new ArgumentOutOfRangeException("fromEventNumber");
@@ -760,7 +762,7 @@ namespace EventStore.Core.Messages {
 			public ReadAllEventsForward(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos,
 				bool requireMaster, long? validationTfLastCommitPosition, IPrincipal user,
-				TimeSpan? longPollTimeout = null)
+				TimeSpan? longPollTimeout = null, DateTime? expiresAt = default)
 				: base(internalCorrId, correlationId, envelope, user) {
 				CommitPosition = commitPosition;
 				PreparePosition = preparePosition;
@@ -834,7 +836,8 @@ namespace EventStore.Core.Messages {
 
 			public ReadAllEventsBackward(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos,
-				bool requireMaster, long? validationTfLastCommitPosition, IPrincipal user)
+				bool requireMaster, long? validationTfLastCommitPosition, IPrincipal user,
+				DateTime? expiresAt = default)
 				: base(internalCorrId, correlationId, envelope, user) {
 				CommitPosition = commitPosition;
 				PreparePosition = preparePosition;
@@ -910,7 +913,7 @@ namespace EventStore.Core.Messages {
 			public FilteredReadAllEventsForward(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos, bool requireMaster,
 				int maxSearchWindow, long? validationTfLastCommitPosition, IEventFilter eventFilter, IPrincipal user,
-				TimeSpan? longPollTimeout = null)
+				TimeSpan? longPollTimeout = null, DateTime? expiresAt = default)
 				: base(internalCorrId, correlationId, envelope, user) {
 				CommitPosition = commitPosition;
 				PreparePosition = preparePosition;
@@ -988,7 +991,7 @@ namespace EventStore.Core.Messages {
 			public FilteredReadAllEventsBackward(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos, bool requireMaster,
 				int maxSearchWindow, long? validationTfLastCommitPosition, IEventFilter eventFilter, IPrincipal user,
-				TimeSpan? longPollTimeout = null)
+				TimeSpan? longPollTimeout = null, DateTime? expiresAt = default)
 				: base(internalCorrId, correlationId, envelope, user) {
 				CommitPosition = commitPosition;
 				PreparePosition = preparePosition;

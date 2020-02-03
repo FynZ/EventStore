@@ -31,6 +31,7 @@ namespace EventStore.Client {
 					Filter = GetFilterOptions(filter)
 				}
 			}, userCredentials,
+			DeadLine.None,
 			cancellationToken), eventAppeared, subscriptionDropped);
 
 		/// <summary>
@@ -59,6 +60,7 @@ namespace EventStore.Client {
 					Filter = GetFilterOptions(filter)
 				}
 			}, userCredentials,
+			DeadLine.None,
 			cancellationToken), eventAppeared, subscriptionDropped);
 
 		public StreamSubscription SubscribeToStream(string streamName,
@@ -77,6 +79,7 @@ namespace EventStore.Client {
 				}
 			},
 			userCredentials,
+			DeadLine.None,
 			cancellationToken), eventAppeared, subscriptionDropped);
 
 		public StreamSubscription SubscribeToStream(string streamName,
@@ -94,6 +97,7 @@ namespace EventStore.Client {
 				}
 			},
 			userCredentials,
+			DeadLine.None,
 			cancellationToken), eventAppeared, subscriptionDropped);
 	}
 }
